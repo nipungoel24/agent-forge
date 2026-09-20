@@ -4,6 +4,11 @@ A version-controlled library of reusable AI agent skills, engineering standards,
 
 ## Skills
 
+### agent-forge-bootstrap
+A universal loader skill for AI agents. It tells an agent to fetch the current relevant skill from this repository before starting project work.
+
+Use this as the small, reusable skill you install into individual AI assistants/agents.
+
 ### production-website
 A production website engineering and QA skill for building or improving websites without generic AI/vibe-coded patterns.
 
@@ -21,9 +26,27 @@ It covers:
 - browser QA
 - deployment and launch verification
 
+## The recommended model
+
+Install `agent-forge-bootstrap` into an agent that supports reusable skills.
+
+When that agent receives a project request, it should:
+1. Identify the relevant Agent Forge skills.
+2. Fetch/load the current skills from this GitHub repository.
+3. Apply those skills to the project.
+4. Continue using project-specific requirements as the source of truth.
+
+For website work, the bootstrap skill loads `production-website`.
+
 ## Install
 
-Install the website skill globally from this repository:
+Install the bootstrap skill globally:
+
+```bash
+npx skills add https://github.com/nipungoel24/agent-forge --skill agent-forge-bootstrap -g --agent '*' --copy
+```
+
+Install the production website skill directly:
 
 ```bash
 npx skills add https://github.com/nipungoel24/agent-forge --skill production-website -g --agent '*' --copy
@@ -37,7 +60,9 @@ npx skills add https://github.com/nipungoel24/agent-forge --skill production-web
 
 ## Repository philosophy
 
-GitHub is the canonical source of truth. Improve the skill here as new failures, techniques, and standards are discovered. Projects should contain their own PRD, Architecture, Rules, Phases, Design, and Memory files; the reusable skill provides the methodology and templates.
+GitHub is the canonical source of truth. Improve the skills here as new failures, techniques, and standards are discovered.
+
+Projects should contain their own PRD, Architecture, Rules, Phases, Design, and Memory files; reusable skills provide the methodology and templates.
 
 ## Included ecosystem references
 
