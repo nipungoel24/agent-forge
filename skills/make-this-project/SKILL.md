@@ -33,9 +33,10 @@ Every invocation must do these things:
 
 1. Parse the complete project request.
 2. Determine the project type and which Agent Forge skills are relevant.
-3. Read the current relevant skills from the canonical GitHub repository when the chatbot has GitHub/web access.
-4. If the chatbot cannot directly retrieve the repository, explicitly include instructions for the coding agent to retrieve the current skills before implementation.
-5. Generate one self-contained execution prompt for the coding agent.
+3. Inspect the current Agent Forge repository structure, including the README, CHANGELOG, skills directory, and relevant supporting prompt/reference/checklist/template files.
+4. Read the current relevant skills from the canonical GitHub repository when the chatbot has GitHub/web access.
+5. If the chatbot cannot directly retrieve the repository, explicitly include instructions for the coding agent to retrieve the current skills before implementation.
+6. Generate one self-contained execution prompt for the coding agent.
 6. The execution prompt must tell the coding agent to fetch/install the relevant Agent Forge skills itself and follow them during implementation.
 7. Preserve the user's project requirements exactly. Do not replace them with generic assumptions.
 8. Require the agent to inspect the existing project/repository before making destructive or architectural changes.
@@ -46,7 +47,17 @@ Every invocation must do these things:
 
 Start from the user's actual project request.
 
+First inspect what currently exists under `skills/`. Do not assume today's skill list is permanent.
+
 Load only the relevant Agent Forge skills, but always check the canonical repository for the latest versions.
+
+For every selected skill:
+- read its `SKILL.md`;
+- inspect any `prompts/`, `references/`, `checklists/`, `templates/`, examples, or other instruction files that the skill explicitly depends on;
+- follow those supporting instructions when applicable;
+- include the relevant paths in the downstream agent handoff.
+
+Do not blindly copy the entire repository into the prompt. Read what is relevant, then give the downstream agent canonical paths so it can fetch the same current source itself.
 
 Examples:
 
@@ -82,6 +93,21 @@ npx skills add https://github.com/nipungoel24/agent-forge --skill <relevant-skil
 If the agent does not have the Skills CLI but can read GitHub/raw URLs, it must fetch the relevant `SKILL.md` files directly and apply them.
 
 If neither is available, the agent must say so rather than claiming the skill was loaded.
+
+## Repository + Prompt Discovery Rule
+
+The user often gives requirements to the normal chatbot first and then asks the chatbot to produce a prompt for another agent. Therefore, treat this skill as the bridge between those two layers.
+
+Before writing the final handoff, combine these sources in order:
+
+1. the user's current project request;
+2. any project files/context explicitly supplied by the user;
+3. the current Agent Forge repository instructions;
+4. the selected Agent Forge skill files and their relevant supporting prompts/references/checklists/templates.
+
+Do not assume that a previous conversational prompt is part of the current task unless it is actually available in the current context.
+
+When the repository contains reusable prompts or instruction files relevant to the selected skill, read them and incorporate their requirements into the generated handoff rather than merely mentioning that they exist.
 
 ## Project-Specific Source of Truth
 
@@ -339,6 +365,24 @@ Report:
 - remaining limitations/blockers
 - Agent Forge skills actually loaded/applied
 ```
+
+## Invocation Contract
+
+When the user invokes `/make-this-project`, do not merely explain how to build the project.
+
+Produce the actual copy-paste-ready implementation prompt for the downstream agent.
+
+The normal chatbot's work is:
+
+1. understand the project;
+2. inspect Agent Forge;
+3. read the relevant standards and supporting instructions;
+4. select the applicable skills;
+5. encode the requirements into the agent handoff;
+6. explicitly require the downstream agent to fetch the same skills from GitHub;
+7. return the finished handoff.
+
+If the user asks for "just the prompt", return the prompt without extra tutorial text.
 
 ## Important Distinction
 
